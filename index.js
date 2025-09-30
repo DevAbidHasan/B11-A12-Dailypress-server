@@ -28,6 +28,21 @@ async function run() {
     const publishersCollection = db.collection("publishers");
     const articlesCollection = db.collection("articles");
 
+
+    // patch : change article status
+    app.patch("/articles/:id/approve", async(req,res) =>{
+      const { id } = req.params;
+      // console.log(id);
+    })
+
+    // get : article details by id
+    app.get("/article-details/:id", async(req,res)=>{
+      const id= req.params.id;
+      const query = { _id : new ObjectId(id)};
+      const result = await articlesCollection.findOne(query);
+      res.send(result);
+    })
+
     // Delete : delete user by admin
     app.delete("/user/:id", async (req, res) => {
       const id = req.params.id;
