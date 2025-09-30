@@ -22,10 +22,11 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
     const db = client.db("dailyPressDB");
     const usersCollection = db.collection("users");
     const publishersCollection = db.collection("publishers");
+    const articlesCollection = db.collection("articles");
 
     // Delete : delete user by admin
     app.delete("/user/:id", async (req, res) => {
@@ -35,7 +36,27 @@ async function run() {
       res.send(result);
     });
 
-    // POST : creating publishers
+    // POST : store articles in the database
+    app.post("/articles", async (req, res) => {
+      const article = req.body;
+      const isExists = await articlesCollection.findOne(article);
+      if (isExists) {
+        return res.send(200).send({
+          message: "Already Registered, Please login.",
+          inserted: false,
+        });
+      }
+      const result = await articlesCollection.insertOne(article);
+      res.send(result);
+    });
+
+    // GET : see all the articles
+    app.get("/articles", async (req, res) => {
+      const result = await articlesCollection.find().toArray();
+      res.send(result);
+    });
+
+    // POST : creating publishers ---> Done
     app.post("/publishers", async (req, res) => {
       const name = req.body.name;
       const isPublisher = await publishersCollection.findOne({ name });
@@ -51,10 +72,10 @@ async function run() {
     });
 
     // get : see the publishers
-    app.get("/publishers", async(req, res)=>{
+    app.get("/publishers", async (req, res) => {
       const result = await publishersCollection.find().toArray();
       res.send(result);
-    })
+    });
 
     // POST : creating user ---> Done
     app.post("/users", async (req, res) => {
@@ -76,10 +97,10 @@ async function run() {
       res.send(result);
     });
 
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
   }
 }
