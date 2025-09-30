@@ -25,14 +25,36 @@ async function run() {
     await client.connect();
     const db = client.db("dailyPressDB");
     const usersCollection = db.collection("users");
+    const publishersCollection = db.collection("publishers");
 
     // Delete : delete user by admin
     app.delete("/user/:id", async (req, res) => {
-        const id = req.params.id;
-        const query = { _id: new ObjectId(id) };
-        const result = await usersCollection.deleteOne(query);
-        res.send(result);
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await usersCollection.deleteOne(query);
+      res.send(result);
     });
+
+    // POST : creating publishers
+    app.post("/publishers", async (req, res) => {
+      const name = req.body.name;
+      const isPublisher = await publishersCollection.findOne({ name });
+      if (isPublisher) {
+        return res.send(200).send({
+          message: "Already Registered, Please login.",
+          inserted: false,
+        });
+      }
+      const publisher = req.body;
+      const result = await publishersCollection.insertOne(publisher);
+      res.send(result);
+    });
+
+    // get : see the publishers
+    app.get("/publishers", async(req, res)=>{
+      const result = await publishersCollection.find().toArray();
+      res.send(result);
+    })
 
     // POST : creating user ---> Done
     app.post("/users", async (req, res) => {
