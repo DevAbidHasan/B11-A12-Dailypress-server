@@ -28,22 +28,44 @@ async function run() {
     const publishersCollection = db.collection("publishers");
     const articlesCollection = db.collection("articles");
 
-
     // patch : change article status
-    app.patch("/articles/:id/approve", async(req,res) =>{
-      const { id } = req.params;
-      // console.log(id);
-    })
+    app.patch("/article/:id/status", async (req, res) => {
+      try {
+        const { id } = req.params;
+        const { status } = req.body; // e.g., "accepted"
 
-    // get : article details by id
-    app.get("/article-details/:id", async(req,res)=>{
-      const id= req.params.id;
-      const query = { _id : new ObjectId(id)};
+        if (!status)
+          return res.status(400).json({ message: "Status is required" });
+
+        const query = { _id: new ObjectId(id) };
+        const updateDoc = { $set: { state: status } }; // make sure your field is `state` in DB
+
+        const result = await articlesCollection.updateOne(query, updateDoc);
+        return res
+          .status(200)
+          .json({ message: `Article status updated to ${status}` });
+      } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+      }
+    });
+
+    // get : article details by id -->Done
+    app.get("/article-details/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
       const result = await articlesCollection.findOne(query);
       res.send(result);
-    })
+    });
+    // Delete : delete article card by admin
+    app.delete("/article-delete/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await articlesCollection.deleteOne(query);
+      res.send(result);
+    });
 
-    // Delete : delete user by admin
+    // Delete : delete user by admin --> Done
     app.delete("/user/:id", async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
@@ -51,7 +73,7 @@ async function run() {
       res.send(result);
     });
 
-    // POST : store articles in the database
+    // POST : store articles in the database -->Done
     app.post("/articles", async (req, res) => {
       const article = req.body;
       const isExists = await articlesCollection.findOne(article);
@@ -65,7 +87,7 @@ async function run() {
       res.send(result);
     });
 
-    // GET : see all the articles
+    // GET : see all the articles -->Done
     app.get("/articles", async (req, res) => {
       const result = await articlesCollection.find().toArray();
       res.send(result);
