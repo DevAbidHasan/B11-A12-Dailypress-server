@@ -30,25 +30,26 @@ async function run() {
 
     // patch : change article status
     app.patch("/article/:id/status", async (req, res) => {
-      try {
-        const { id } = req.params;
-        const { status } = req.body; // e.g., "accepted"
-
-        if (!status)
-          return res.status(400).json({ message: "Status is required" });
-
-        const query = { _id: new ObjectId(id) };
-        const updateDoc = { $set: { state: status } }; // make sure your field is `state` in DB
-
-        const result = await articlesCollection.updateOne(query, updateDoc);
-        return res
-          .status(200)
-          .json({ message: `Article status updated to ${status}` });
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Server error" });
+      try { 
+        const id = req.params.id;
+        const { state } = req.body;
+        const result = await articlesCollection.updateOne(
+          { _id: new ObjectId(id) },
+          { $set: { state: state } }
+        );
+        res.json({ success: true, result });
+      } catch {
+        res.status(500).json({ success: false, error: error.message });
       }
     });
+
+    //get : articles that are accepted
+    app.get("/articles/accepted", async(req,res)=>{
+      const state = "accepted";
+      const query = { state : state}
+      const result = await articlesCollection.find(query).toArray();
+      res.send(result);
+    })
 
     // get : article details by id -->Done
     app.get("/article-details/:id", async (req, res) => {
@@ -57,6 +58,7 @@ async function run() {
       const result = await articlesCollection.findOne(query);
       res.send(result);
     });
+
     // Delete : delete article card by admin
     app.delete("/article-delete/:id", async (req, res) => {
       const id = req.params.id;
