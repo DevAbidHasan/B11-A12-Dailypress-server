@@ -43,6 +43,14 @@ async function run() {
       }
     });
 
+    // get : find article for individual entries by email
+    app.get("/myArticles/:email", async ( req,res) =>{
+      const email = req.params.email;
+      const query = { email : email};
+      const result = await articlesCollection.find(query).toArray();
+      res.send(result);
+    })
+
     //get : articles that are accepted
     app.get("/articles/accepted", async(req,res)=>{
       const state = "accepted";
