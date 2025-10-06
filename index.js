@@ -28,6 +28,13 @@ async function run() {
     const publishersCollection = db.collection("publishers");
     const articlesCollection = db.collection("articles");
 
+    // patch : update view count on every details viewing
+    app.patch("/article/:id", async(req,res)=>{
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id)};
+      const result = await articlesCollection.findOne();
+    })
+
     // patch : change article status
     app.patch("/article/:id/status", async (req, res) => {
       try { 
@@ -42,6 +49,14 @@ async function run() {
         res.status(500).json({ success: false, error: error.message });
       }
     });
+
+    // get : get user by id
+    app.get("/user/:email", async(req,res)=>{
+      const email = req.params.email;
+      const query = { email : email};
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    })
 
     // get : find article for individual entries by email
     app.get("/myArticles/:email", async ( req,res) =>{
