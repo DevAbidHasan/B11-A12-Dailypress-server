@@ -70,6 +70,18 @@ async function run() {
       res.send(result);
     })
 
+    // patch : update article views-count in each view
+    app.patch("/article-details/:id", async(req,res) => {
+      const id = req.params.id;
+      const { view } = req.body;
+      const query = { _id : new ObjectId(id)};
+      const updatedDoc = {
+        $set : { view : view}
+      };
+      const result = await articlesCollection.updateOne(query, updatedDoc);
+      res.send(result);
+    })
+
     // get : find article for individual entries by email --done
     app.get("/myArticles/:email", async ( req,res) =>{
       const email = req.params.email;
