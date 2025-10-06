@@ -29,15 +29,15 @@ async function run() {
     const articlesCollection = db.collection("articles");
 
     // patch : update view count on every details viewing
-    app.patch("/article/:id", async(req,res)=>{
+    app.patch("/article/:id", async (req, res) => {
       const id = req.params.id;
-      const query = { _id: new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const result = await articlesCollection.findOne();
-    })
+    });
 
     // patch : change article status --done
     app.patch("/article/:id/status", async (req, res) => {
-      try { 
+      try {
         const id = req.params.id;
         const { state } = req.body;
         const result = await articlesCollection.updateOne(
@@ -51,52 +51,52 @@ async function run() {
     });
 
     // get : get user by id --done
-    app.get("/user/:email", async(req,res)=>{
+    app.get("/user/:email", async (req, res) => {
       const email = req.params.email;
-      const query = { email : email};
+      const query = { email: email };
       const result = await usersCollection.findOne(query);
       res.send(result);
-    })
+    });
 
     // patch : update username by email
-    app.patch("/user/:email", async(req,res)=>{
+    app.patch("/user/:email", async (req, res) => {
       const email = req.params.email;
-      const query = { email : email};
-      const {name} = req.body;
-      const updatedDoc= {
-        $set : {name: name}
+      const query = { email: email };
+      const { name } = req.body;
+      const updatedDoc = {
+        $set: { name: name },
       };
       const result = await usersCollection.updateOne(query, updatedDoc);
       res.send(result);
-    })
+    });
 
     // patch : update article views-count in each view
-    app.patch("/article-details/:id", async(req,res) => {
+    app.patch("/article-details/:id", async (req, res) => {
       const id = req.params.id;
       const { view } = req.body;
-      const query = { _id : new ObjectId(id)};
+      const query = { _id: new ObjectId(id) };
       const updatedDoc = {
-        $set : { view : view}
+        $set: { view: view },
       };
       const result = await articlesCollection.updateOne(query, updatedDoc);
       res.send(result);
-    })
+    });
 
     // get : find article for individual entries by email --done
-    app.get("/myArticles/:email", async ( req,res) =>{
+    app.get("/myArticles/:email", async (req, res) => {
       const email = req.params.email;
-      const query = { email : email};
+      const query = { email: email };
       const result = await articlesCollection.find(query).toArray();
       res.send(result);
-    })
+    });
 
     //get : articles that are accepted -- done
-    app.get("/articles/accepted", async(req,res)=>{
+    app.get("/articles/accepted", async (req, res) => {
       const state = "accepted";
-      const query = { state : state}
+      const query = { state: state };
       const result = await articlesCollection.find(query).toArray();
       res.send(result);
-    })
+    });
 
     // get : article details by id -->Done
     app.get("/article/:id", async (req, res) => {
@@ -140,6 +140,21 @@ async function run() {
     app.get("/articles", async (req, res) => {
       const result = await articlesCollection.find().toArray();
       res.send(result);
+    });
+
+    app.get("/topArticles", async (req, res) => {
+      try {
+        const result = await articlesCollection
+          .find({})
+          .sort({ view: -1 }) // sort by views (highest first)
+          .limit(6) // only top 6
+          .toArray();
+
+        res.send(result);
+      } catch (error) {
+        console.error("Error fetching top articles:", error);
+        res.status(500).json({ message: "Internal server error" });
+      }
     });
 
     // POST : creating publishers ---> Done
