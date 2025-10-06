@@ -14,7 +14,6 @@ This is the **server-side** application for the DailyPress project, a modern art
 - **cors** (Cross-Origin Resource Sharing)
 - **dotenv** (Environment Variables)
 - **express.json()** (Body Parsing Middleware)
-- **Other dependencies**: nodemon, bcrypt, JWT (if authentication implemented)
 
 ---
 
