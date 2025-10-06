@@ -35,7 +35,7 @@ async function run() {
       const result = await articlesCollection.findOne();
     })
 
-    // patch : change article status
+    // patch : change article status --done
     app.patch("/article/:id/status", async (req, res) => {
       try { 
         const id = req.params.id;
@@ -50,7 +50,7 @@ async function run() {
       }
     });
 
-    // get : get user by id
+    // get : get user by id --done
     app.get("/user/:email", async(req,res)=>{
       const email = req.params.email;
       const query = { email : email};
@@ -58,7 +58,19 @@ async function run() {
       res.send(result);
     })
 
-    // get : find article for individual entries by email
+    // patch : update username by email
+    app.patch("/user/:email", async(req,res)=>{
+      const email = req.params.email;
+      const query = { email : email};
+      const {name} = req.body;
+      const updatedDoc= {
+        $set : {name: name}
+      };
+      const result = await usersCollection.updateOne(query, updatedDoc);
+      res.send(result);
+    })
+
+    // get : find article for individual entries by email --done
     app.get("/myArticles/:email", async ( req,res) =>{
       const email = req.params.email;
       const query = { email : email};
@@ -66,7 +78,7 @@ async function run() {
       res.send(result);
     })
 
-    //get : articles that are accepted
+    //get : articles that are accepted -- done
     app.get("/articles/accepted", async(req,res)=>{
       const state = "accepted";
       const query = { state : state}
